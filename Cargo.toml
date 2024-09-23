@@ -1,0 +1,10 @@
+[package]
+name = "slint_final_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dirs = "5.0.1"
+disk-name = "=1.0.0"
+rayon = "1.10.0"
+slint = "1.8.0"
