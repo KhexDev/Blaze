@@ -1,6 +1,6 @@
 
-#![windows_subsystem = "windows"]
-use std::{process::Command, rc::Rc};
+// #![windows_subsystem = "windows"]
+use std::rc::Rc;
 
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel, Weak};
 use disk_name::get_letters;
@@ -40,7 +40,8 @@ slint::slint! {
     }
 
     export component App inherits Window {
-        title: "Blaze";
+        title: "Blaze by KhexDev";
+        icon: @image-url("resources/icon.png");
         min-width: 900px;
         min-height: 720px;
         max-width: 900px;
@@ -66,6 +67,8 @@ slint::slint! {
         callback reset_viewport_y();
         callback clicked-fast-entries(FastEntry);
         callback clicked-disk(string);
+
+        forward-focus: key-handler;
 
         VerticalLayout {
             HorizontalLayout { 
@@ -218,6 +221,17 @@ slint::slint! {
                 background: black;
                 height: 8%;
     
+                key-handler := FocusScope {
+                    enabled: false;
+                    key-pressed(event) => {
+                        debug(event.text);
+                        reject
+                    }
+                    focus-changed-event => {
+                        debug("focus-changed-event");
+                    }
+                }
+
                 HorizontalLayout {
                     Text {
                         text: "Status";
@@ -340,34 +354,9 @@ fn load_entries(weak_app: &Weak<App>, method: LoadEntriesMethod) {
 
 }
 
-#[derive(PartialEq, Eq)]
-enum FileType {
-    Exe,
-    Txt,
-    Image,
-    SourceCode,
-    GeneralTxt,
-}
-
-impl FileType {
-    pub fn get(file: &str) -> Self {
-        if file.ends_with(".txt") {
-            FileType::Txt
-        } 
-        else if file.ends_with(".exe") {
-            FileType::Exe
-        }
-        else {
-            FileType::GeneralTxt
-        }
-    }
-}
-
 fn main() {
     let app = App::new().expect("Failed to create app");
     app.global::<Global>().set_current_path("C:\\".into());
-
-    // println!("{:?}", get_letters());
 
     let disks_name_model = Rc::new(VecModel::from(get_letters()
     .iter()
@@ -400,33 +389,7 @@ fn main() {
             let app = weak_app.upgrade().unwrap();
             let mut path = app.global::<Global>().get_current_path().to_string();
             path.push_str(&format!("\\{}", &entry.name));
-
-            println!("opening file {}", path);
-
-            match FileType::get(&path)  {
-                FileType::GeneralTxt | FileType::Txt => {
-                    match Command::new("notepad")
-                     .arg(path)
-                     .current_dir(app.global::<Global>()
-                     .get_current_path().to_string())
-                     .spawn() {
-                        Ok(child) => println!("{child:?}"),
-                        Err(error) => println!("{error:?}"),
-                    }
-                }
-                
-                FileType::Exe => {
-                    match Command::new(path)
-                     .current_dir(app.global::<Global>()
-                     .get_current_path().to_string())
-                     .spawn() {
-                        Ok(child) => println!("{child:?}"),
-                        Err(error) => println!("{error:?}"),
-                    }
-                }
-
-                _=> println!("unsupported file type"),
-            }    
+            open::that_detached(&path).expect("Failed to open file");
         }
     });
 
