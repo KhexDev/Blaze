@@ -1,0 +1,9 @@
+OpenGL version loaded: 3.2
+Created shader 1
+STBI: FAILURE can't fopen ON assets/graphical/menu/mm/bg.png
+pixels are fucking null? WTF STBI assets/graphical/menu/mm/bg.png
+STBI: FAILURE can't fopen ON assets/graphical/menu/genericAvatar.png
+pixels are fucking null? WTF STBI assets/graphical/menu/genericAvatar.png
+STBI: FAILURE can't fopen ON assets/graphical/menu/mm/avg4k.png
+pixels are fucking null? WTF STBI assets/graphical/menu/mm/avg4k.png
+creating new font arialbd with size of 16
